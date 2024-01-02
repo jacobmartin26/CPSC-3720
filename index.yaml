@@ -1,0 +1,365 @@
+openapi: '3.0.0'
+info:
+  version: '1.0.0'
+  title: 'Promotions API'
+  description: Our API is made using the REST (Representational state transfer) standard. The purpose of the API is to maintain and manage the different promotion and loyalty programs for cusport.org. We do this through a number of different queries and paths. But the main objects we have are the promotional codes a customer may use upon check out to give discounts, extra rewards, or any other promotional event we may have. We use a promoCode object to track these values along with the expected expiration date of each promotional event, a description of what it does, an id number to track it, and a discount(percentage off) amount. We also track whether or not a specific promotion is only available to members who are a part of the loyalty program. Our other main pathway is gift cards. The giftCard object tracks the card's id number, code, name, current balance, and expiration date.
+servers:
+  - url: cusports.org
+
+paths:
+  /promotions/gift_cards:
+    get:
+      summary: View all gift cards or filter by query
+      parameters:
+      - in: query
+        name: expirationDate
+        required: false
+        description: Represents the expiration date of a specific gift card in date-time format
+        schema:
+          $ref: '#/components/schemas/expirationDate'
+
+      - name: balance
+        description: A decimal number representing the current balance of a specific gift card
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/giftCardBalance'
+
+      - name: giftCardId
+        description: A 5-digit number representing the unique identifier of a specific gift card
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/giftCardId'
+
+      - name: name
+        description: A string representing the name given for a specific gift card
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/giftCardName'
+
+      - name: code
+        description: A 3-digit number representing the security code for a specific gift card
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/giftCardName'
+
+      responses:
+        '200':
+          description: Successfully retrieved gift card(s) information and displayed the gift card(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/giftCard'
+        404:
+          description: No gift card(s) found with given queries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Create a gift card with given input
+      responses:
+        '201':
+          description: Creates a gift card with the given 'giftCardId' and other supplied gift card attributes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/giftCard'
+        401:
+          description: Not authorized to create gift card
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error has occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Modify a particular gift card with a specific ‘giftCardId’
+
+      parameters:
+      - name: giftCardId
+        description: A number representing the unique identifier of a specific gift card
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/giftCardId'
+
+      responses:
+        '200':
+          description: Modifies a gift card with the given 'giftCardId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/giftCard'
+        404:
+          description: Failed to modify gift card with the given id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error has occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete a particular gift card with a specific ‘giftCardId’
+
+      parameters:
+      - name: giftCardId
+        description: A number representing the unique identifier of a specific gift card
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/giftCardId'
+
+      responses:
+        '200':
+          description: Successfully deleted a gift card with the given 'giftCardId'
+        404:
+          description: No gift card found or deleted with the given 'giftCardId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error has occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    
+  /promotions/promo_codes:
+    get:
+      summary: View all promo codes or filter by query
+
+      parameters:
+      - name: isLoyalty
+        in: query
+        required: false
+        description: Value used to select the promo code(s) that are loyalty exclusive
+
+        schema:
+          $ref: '#/components/schemas/isLoyalty'
+
+      - name: promoCodeId
+        description: Value to serve as the unique identifier of a particular promo code
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/promoCodeId'
+
+      - name: percentOff
+        description: Percentage value used to determine how much the promo code takes off of an order’s total
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/percentOff'
+
+      - name: expirationDate
+        in: query
+        required: false
+        description: Serves as a particular promo code's expiration date
+        schema:
+          $ref: '#/components/schemas/expirationDate'
+
+      - name: value
+        in: query
+        required: false
+        description: Serves as a particular promo code's value
+        schema:
+          $ref: '#/components/schemas/promoCodeValue'
+
+      
+      responses:
+        '200':
+          description: Successfully displayed and returned the data of promo code(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/promoCode'
+        404:
+          description: No promo code(s) found with given queries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Create a new promo code
+      responses:
+        '201':
+          description: Creates a promo code with the given promo code information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/promoCode'
+        401:
+          description: Not authorized to create promo code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error has occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Modify a particular promo code using a specific ‘promoCodeId’
+
+      parameters:
+      - name: promoCodeId
+        description: A number representing the unique identifier of a specific promo code
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/promoCodeId'
+
+      responses:
+        '200':
+          description: Successfully modified a gift card with the given 'giftCardId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/promoCode'
+        404:
+          description: Failed to modify gift card with the given id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error has occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Deletes a particular promo code with a specific ‘promoCodeId’
+      parameters:
+      - name: promoCodeId
+        description: A number representing the unique identifier of a specific promo code
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/promoCodeId'
+
+      responses:
+        '200':
+          description: Deleted a promo code with the given 'promoCodeId'
+        404:
+          description: No promo code found or deleted with the given 'promoCodeId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error has occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+components:
+  schemas:
+    giftCardId:
+      description: The unique 5-digit identifier of a gift card
+      type: string
+    
+    giftCardName:
+      description: A string representing the name given for a specific gift card
+      type: string
+      
+    giftCardBalance:
+      description: A decimal number representing the current balance of a specific gift card
+      type: number
+
+    giftCardCode:
+      description: A 3-digit number representing the security code for a specific gift card
+      type: number
+
+    giftCard:
+      type: object
+      required:
+        - id
+        - name
+        - balance
+        - expiration_date
+        - code
+
+      properties:
+        id:
+          $ref: '#/components/schemas/giftCardId'
+        name:
+          $ref: '#/components/schemas/giftCardName'
+        balance:
+          $ref: '#/components/schemas/giftCardBalance' 
+        expiration_date:
+          $ref: '#/components/schemas/expirationDate'
+        code:
+          $ref: '#/components/schemas/giftCardCode'
+
+    promoCodeId:
+      description: The unique identifier of a promoCode
+      type: string
+    promoCode:
+      type: object
+      required:
+        - id
+        - value
+        - percentOff
+        - expirationDate
+      properties:
+        id:
+          $ref: '#/components/schemas/promoCodeId'
+        value:
+          $ref: '#/components/schemas/promoCodeValue'
+        percentOff:
+          $ref: '#/components/schemas/percentOff'
+        expirationDate:
+          $ref: '#/components/schemas/expirationDate'
+    
+    isLoyalty:
+      description: Value used to determine if the promo code is loyalty exclusive or not
+      type: number
+
+    percentOff:
+      description: A percent value representing the amount off of an item the promo code provides
+      type: integer
+      format: percent
+
+    promoCodeValue:
+      description: A string representing the value of the promo code
+      type: string
+    
+    expirationDate:
+      description: Represents the expiration date of a specific gift card in date-time format
+      type: string
+      format: date-time
+
+    Error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          description: A human readable error message
+          type: string
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+security:
+  - ApiKey: []
